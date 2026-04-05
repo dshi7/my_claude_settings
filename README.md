@@ -12,8 +12,8 @@ claude/
 │   └── vcs-detection.md         # hg vs git detection
 ├── knowledge/
 │   └── pytorch/
-│       ├── README.md            # Pointers to pytorch repo skills
-│       └── coding-style.md     # Distilled conventions (auto-loaded)
+│       ├── README.md     # Pointers to pytorch repo skills
+│       └── SKILL.md      # Distilled conventions (on-demand skill)
 └── internal/                    # .gitignored — distributed via dotsync2
     ├── meta-internal.md         # Domain, devserver hosts
     ├── settings.json            # Plugin config
@@ -43,9 +43,13 @@ CLAUDE.md uses `@`-import syntax to load files at session start. Missing files a
 
 ## Knowledge base
 
-`knowledge/pytorch/` contains a distilled coding-style file (auto-loaded) and
-pointers to the pytorch repo's Claude skills (PR review, PT2 debugging, issue triage).
-A local pytorch repo is assumed available on every devserver — no need to duplicate.
+`knowledge/pytorch/` contains a skill (on-demand, not auto-loaded) with distilled
+coding conventions, test patterns, and logging. The skill triggers automatically
+when working in the pytorch repo, or invoke with `/pytorch-style`.
+
+Pointers to the pytorch repo's own Claude skills (PR review, PT2 debugging,
+issue triage) are in `knowledge/pytorch/README.md` — reference them on demand.
+A local pytorch repo is assumed available on every devserver.
 
 ## Memory schema
 

@@ -24,6 +24,17 @@ for f in "$SCRIPT_DIR/claude/rules/"*; do
   echo "  copied rules/$(basename "$f")"
 done
 
+# Copy knowledge base
+find "$SCRIPT_DIR/claude/knowledge" -type d | while read dir; do
+  dest="$CLAUDE_DIR/${dir#$SCRIPT_DIR/claude/}"
+  mkdir -p "$dest"
+done
+find "$SCRIPT_DIR/claude/knowledge" -type f | while read f; do
+  dest="$CLAUDE_DIR/${f#$SCRIPT_DIR/claude/}"
+  cp "$f" "$dest"
+  echo "  copied ${f#$SCRIPT_DIR/claude/}"
+done
+
 # Optionally copy internal files
 if [ "${1:-}" = "--internal" ] && [ -d "$SCRIPT_DIR/claude/internal" ]; then
   # Copy internal rules/configs

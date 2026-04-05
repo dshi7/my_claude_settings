@@ -3,10 +3,15 @@
 Context for working with the PyTorch codebase. A local pytorch repo is assumed
 to be available on every devserver.
 
-## Local file: `coding-style.md`
+## Local skill: `SKILL.md`
 
-Distilled coding conventions, testing patterns, and logging — auto-loaded via
-`@`-import in CLAUDE.md every session.
+Distilled coding conventions, testing patterns, and logging. Loaded as a skill
+on demand when working in the pytorch repo — not auto-loaded globally.
+
+Invoke explicitly if needed:
+```
+/pytorch-style
+```
 
 ## Reference from pytorch repo (load on demand)
 

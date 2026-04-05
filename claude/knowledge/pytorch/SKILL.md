@@ -1,3 +1,12 @@
+---
+name: pytorch-style
+description: Use when writing, editing, or reviewing code in the pytorch/pytorch
+  repo. Covers PyTorch coding conventions, test patterns (TestCase, parametrize,
+  OpInfo), build commands, Dynamo config patching, trace_structured logging,
+  and commit message format. Also use when asked about torch.compile, Inductor,
+  or Dynamo development patterns.
+---
+
 # PyTorch Coding Style & Patterns
 
 ## Coding Style
