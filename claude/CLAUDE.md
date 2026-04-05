@@ -13,4 +13,4 @@
      distributed separately via dotsync2. Remove lines if files don't exist. -->
 @~/.claude/internal/meta-internal.md
 @~/.claude/internal/memory/repos.md
-@~/.claude/internal/memory/projects.md
+@~/.claude/internal/memory/workstreams.md

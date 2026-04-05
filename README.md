@@ -18,7 +18,7 @@ claude/
     ├── myclaw-prompts/          # Agentic job prompts
     └── memory/
         ├── repos.md             # Repo map: VCS type, paths, build cmds (stable)
-        ├── projects.md          # Active workstreams (volatile)
+        ├── workstreams.md       # Active workstreams (volatile)
         ├── decisions.md         # ADR log, append-only (loaded on demand)
         └── torchtlx/            # Multi-agent design system (7 agents)
 ```
@@ -46,7 +46,7 @@ CLAUDE.md uses `@`-import syntax to load internal files at session start. If the
 | File | Loaded | Update when |
 |------|--------|-------------|
 | `repos.md` | Every session (via `@`-import) | Repo layout or build system changes |
-| `projects.md` | Every session (via `@`-import) | Starting or finishing a workstream |
+| `workstreams.md` | Every session (via `@`-import) | Starting or finishing a workstream |
 | `decisions.md` | On demand only | Never edit; only append new entries |
 
 To load decisions during a session: `@~/.claude/internal/memory/decisions.md`
