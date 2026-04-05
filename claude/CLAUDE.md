@@ -6,3 +6,8 @@
   Only skip for single-line fixes, typos, or obvious one-liner changes.
 - **Always confirm before sending messages** to anyone other than me.
   If a name/alias resolves to multiple people, confirm which one before sending.
+
+# Internal Settings
+
+If `claude/internal/` exists, also load files from there. It contains host-specific
+configs, project memory, and sensitive context that are not committed to this repo.

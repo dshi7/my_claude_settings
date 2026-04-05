@@ -10,6 +10,10 @@ claude/
 ├── rules/
 │   └── shell-safety.md    # Shell command guardrails
 └── internal/              # .gitignored — host/project-specific configs
+    ├── meta-internal.md   #   domain, repos, hosts
+    ├── settings.json      #   plugin config
+    ├── settings.local.json#   local permissions
+    └── memory/            #   project memory files
 ```
 
 ## Install
@@ -17,12 +21,13 @@ claude/
 Copy settings into `~/.claude/`:
 
 ```bash
-./install.sh
+./install.sh              # OSS files only
+./install.sh --internal   # also copy internal configs
 ```
-
-The script copies `claude/CLAUDE.md` and `claude/rules/*` into `~/.claude/`. Internal files under `claude/internal/` are not copied — manage those separately.
 
 ## Two-layer design
 
-- **This repo** holds general, portable settings (preferences, shell safety rules).
-- **Internal configs** (host maps, project-specific rules, memory files) live in `claude/internal/` (.gitignored) and are distributed separately (e.g., via dotsync2).
+- **OSS layer** (git-tracked): General, portable settings — preferences, shell safety rules.
+- **Internal layer** (.gitignored): Host maps, project-specific rules, memory files. Distributed separately (e.g., via dotsync2).
+
+Both layers are loaded by Claude Code. The `internal/` folder is referenced in `CLAUDE.md` so Claude knows to look there.
