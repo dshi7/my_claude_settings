@@ -6,26 +6,28 @@ My Claude Code settings — general preferences and rules for AI-assisted develo
 
 ```
 claude/
-├── CLAUDE.md                    # Global prefs + @-imports for internal context
+├── CLAUDE.md                    # Global prefs + @-imports
 ├── rules/
 │   ├── shell-safety.md          # Shell command guardrails
 │   └── vcs-detection.md         # hg vs git detection
+├── knowledge/
+│   └── pytorch/
+│       ├── README.md            # Pointers to pytorch repo skills
+│       └── coding-style.md     # Distilled conventions (auto-loaded)
 └── internal/                    # .gitignored — distributed via dotsync2
     ├── meta-internal.md         # Domain, devserver hosts
     ├── settings.json            # Plugin config
     ├── settings.local.json      # Local permissions
-    ├── commands/                 # Slash commands (triton-ci-status)
+    ├── commands/                 # Slash commands
     ├── myclaw-prompts/          # Agentic job prompts
     └── memory/
-        ├── repos.md             # Repo map: VCS type, paths, build cmds (stable)
+        ├── repos.md             # Repo map (stable)
         ├── workstreams.md       # Active workstreams (volatile)
-        ├── decisions.md         # ADR log, append-only (loaded on demand)
+        ├── decisions.md         # ADR log, append-only (on demand)
         └── torchtlx/            # Multi-agent design system (7 agents)
 ```
 
 ## Install
-
-Copy settings into `~/.claude/`:
 
 ```bash
 ./install.sh              # OSS files only
@@ -34,19 +36,21 @@ Copy settings into `~/.claude/`:
 
 ## Two-layer design
 
-- **OSS layer** (git-tracked): General, portable settings — preferences, shell safety rules, VCS detection.
-- **Internal layer** (.gitignored): Host maps, project-specific rules, memory files. Distributed separately (e.g., via dotsync2).
+- **OSS layer** (git-tracked): Preferences, rules, knowledge base.
+- **Internal layer** (.gitignored): Host maps, workstreams, memory. Distributed via dotsync2.
 
-CLAUDE.md uses `@`-import syntax to load internal files at session start. If the files don't exist, they're silently skipped.
+CLAUDE.md uses `@`-import syntax to load files at session start. Missing files are silently skipped.
+
+## Knowledge base
+
+`knowledge/pytorch/` contains a distilled coding-style file (auto-loaded) and
+pointers to the pytorch repo's Claude skills (PR review, PT2 debugging, issue triage).
+A local pytorch repo is assumed available on every devserver — no need to duplicate.
 
 ## Memory schema
 
-`internal/memory/` uses three fixed files with distinct update cadences:
-
 | File | Loaded | Update when |
 |------|--------|-------------|
-| `repos.md` | Every session (via `@`-import) | Repo layout or build system changes |
-| `workstreams.md` | Every session (via `@`-import) | Starting or finishing a workstream |
-| `decisions.md` | On demand only | Never edit; only append new entries |
-
-To load decisions during a session: `@~/.claude/internal/memory/decisions.md`
+| `repos.md` | Every session | Repo layout or build system changes |
+| `workstreams.md` | Every session | Starting or finishing a workstream |
+| `decisions.md` | On demand | Append-only; never edit past entries |

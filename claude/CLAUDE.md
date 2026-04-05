@@ -14,3 +14,7 @@
 @~/.claude/internal/meta-internal.md
 @~/.claude/internal/memory/repos.md
 @~/.claude/internal/memory/workstreams.md
+
+# PyTorch Knowledge
+
+@claude/knowledge/pytorch/coding-style.md
