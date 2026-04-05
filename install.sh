@@ -24,16 +24,49 @@ for f in "$SCRIPT_DIR/claude/rules/"*; do
   echo "  copied rules/$(basename "$f")"
 done
 
-# Copy knowledge base
-find "$SCRIPT_DIR/claude/knowledge" -type d | while read dir; do
-  dest="$CLAUDE_DIR/${dir#$SCRIPT_DIR/claude/}"
+# Install skills from knowledge directories
+# Each directory containing a SKILL.md is installed to ~/.claude/skills/<dirname>/
+for skill_file in "$SCRIPT_DIR/claude/knowledge/"*/SKILL.md; do
+  [ -f "$skill_file" ] || continue
+  skill_dir="$(dirname "$skill_file")"
+  skill_name="$(basename "$skill_dir")"
+  dest="$CLAUDE_DIR/skills/$skill_name"
   mkdir -p "$dest"
+  cp "$skill_file" "$dest/SKILL.md"
+  echo "  installed skill: $skill_name"
 done
-find "$SCRIPT_DIR/claude/knowledge" -type f | while read f; do
-  dest="$CLAUDE_DIR/${f#$SCRIPT_DIR/claude/}"
-  cp "$f" "$dest"
-  echo "  copied ${f#$SCRIPT_DIR/claude/}"
+
+# Copy non-skill knowledge files (README.md, etc.)
+for dir in "$SCRIPT_DIR/claude/knowledge/"*/; do
+  [ -d "$dir" ] || continue
+  name="$(basename "$dir")"
+  dest="$CLAUDE_DIR/knowledge/$name"
+  mkdir -p "$dest"
+  for f in "$dir"*; do
+    [ -f "$f" ] || continue
+    fname="$(basename "$f")"
+    [ "$fname" = "SKILL.md" ] && continue  # already installed as skill
+    cp "$f" "$dest/$fname"
+    echo "  copied knowledge/$name/$fname"
+  done
 done
+
+# Copy hooks
+if [ -d "$SCRIPT_DIR/claude/hooks" ]; then
+  mkdir -p "$CLAUDE_DIR/hooks"
+  for f in "$SCRIPT_DIR/claude/hooks/"*.sh; do
+    [ -f "$f" ] || continue
+    cp "$f" "$CLAUDE_DIR/hooks/$(basename "$f")"
+    chmod +x "$CLAUDE_DIR/hooks/$(basename "$f")"
+    echo "  copied hooks/$(basename "$f")"
+  done
+fi
+
+# Copy settings.json (merge hooks into existing if present)
+if [ -f "$SCRIPT_DIR/claude/settings.json" ]; then
+  cp "$SCRIPT_DIR/claude/settings.json" "$CLAUDE_DIR/settings.json"
+  echo "  copied settings.json"
+fi
 
 # Optionally copy internal files
 if [ "${1:-}" = "--internal" ] && [ -d "$SCRIPT_DIR/claude/internal" ]; then
