@@ -32,8 +32,11 @@ for skill_file in "$SCRIPT_DIR/claude/knowledge/"*/SKILL.md; do
   skill_name="$(basename "$skill_dir")"
   dest="$CLAUDE_DIR/skills/$skill_name"
   mkdir -p "$dest"
-  cp "$skill_file" "$dest/SKILL.md"
-  echo "  installed skill: $skill_name"
+  if cp "$skill_file" "$dest/SKILL.md" 2>/dev/null; then
+    echo "  installed skill: $skill_name"
+  else
+    echo "  skipped skill (no write access): $skill_name"
+  fi
 done
 
 # Copy non-skill knowledge files (README.md, etc.)
