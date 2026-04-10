@@ -19,3 +19,6 @@
 @~/.claude/internal/fb-internal.md
 @~/.claude/internal/memory/repos.md
 @~/.claude/internal/memory/workstreams.md
+@~/.claude/internal/torchtlx.md
+@~/.claude/internal/fbtriton-ci.md
+@~/.claude/internal/triton-tbe.md

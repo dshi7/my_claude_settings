@@ -5,7 +5,7 @@ My Claude Code settings — general preferences and rules for AI-assisted develo
 ## Structure
 
 ```
-claude/                              # OSS layer — git-tracked
+claude/                              # OSS layer — git-tracked, refreshed each install
 ├── CLAUDE.md                        # Global prefs + @-imports to internal/
 ├── settings.json                    # Hooks wiring (PreToolUse, SessionStart, etc.)
 ├── rules/
@@ -19,47 +19,63 @@ claude/                              # OSS layer — git-tracked
 │   ├── cwd-changed.sh               # Set REPO_VCS env var (CwdChanged)
 │   ├── post-compact.sh              # Persist summary to workstreams.md (PostCompact)
 │   └── instructions-loaded.sh       # Debug logging (InstructionsLoaded)
-└── knowledge/
-    └── pytorch/
-        ├── README.md                # Pointers to pytorch repo skills
-        └── SKILL.md                 # Distilled conventions (on-demand skill)
+└── knowledge/                       # Distilled OSS-safe project knowledge
+    ├── pytorch/                     # PyTorch conventions (/pytorch-style)
+    ├── torchtlx/                    # TLX conventions (/torchtlx-style)
+    ├── fbtriton-ci/                 # CI workflow conventions (/fbtriton-ci)
+    └── triton-tbe/                  # TBE kernel conventions (/triton-tbe)
 
-templates/                           # Git-tracked templates for internal layer
-└── internal/
-    ├── fb-internal.md               # Domain, devserver hosts, repo paths
-    └── memory/
-        ├── repos.md                 # Repo map scaffold
-        ├── workstreams.md           # Workstreams scaffold
-        └── decisions.md             # ADR log scaffold
+templates/internal/                  # Seeds for internal layer (one-time scaffold)
+├── fb-internal.md                   # Domain, devserver hosts, repo paths
+├── torchtlx.md                      # FB-internal TLX context
+├── fbtriton-ci.md                   # FB-internal CI tools context
+├── triton-tbe.md                    # FB-internal TBE benchmarks context
+└── memory/
+    ├── repos.md                     # Repo map
+    ├── workstreams.md               # Active workstreams (appended by post-compact hook)
+    └── decisions.md                 # ADR log, append-only
 ```
 
-After `install.sh --internal`, the internal layer is installed to `~/.claude/internal/`
-and synced across devservers via dotsync2.
+## Two-layer design
+
+```
+Git Repo (OSS)                          ~/.claude/internal/ (dotsync2)
+─────────────────                       ─────────────────────────────
+claude/          ──install.sh──►        OSS files (refreshed each run)
+templates/internal/ ──scaffold──►       internal/ (seeded once, edit in place)
+                                              │
+                                        dotsync2 sync
+                                              │
+                                   ┌──────────┼──────────┐
+                                   ▼          ▼          ▼
+                              devgpu006  devgpu031  devgpu035 ...
+```
+
+- **OSS layer** (`claude/`): Preferences, rules, hooks, knowledge. Git-tracked,
+  refreshed on every `install.sh` run. Polishable by external agents.
+- **Internal layer** (`templates/internal/`): FB-only context. Scaffolded once
+  by `install.sh --internal` — if the file already exists, it's skipped.
+  After first install, **edit `~/.claude/internal/` directly** on any devgpu.
+  dotsync2 syncs changes across all devservers.
+
+CLAUDE.md uses `@`-imports to load internal files at session start.
+Missing files are silently skipped.
 
 ## Install
 
 ```bash
-./install.sh              # OSS files only
-./install.sh --internal   # also copy internal configs + scaffold memory
+./install.sh              # OSS files only (rules, hooks, skills, settings)
+./install.sh --internal   # also scaffold internal context + memory
 ```
 
 **Requires `jq`** — install.sh deep-merges hooks from the repo into your
 existing `~/.claude/settings.json`, preserving `enabledPlugins`, `env`, and
 other live keys. Without jq, it falls back to a plain copy.
 
-## Two-layer design
-
-- **OSS layer** (git-tracked): Preferences, rules, hooks, knowledge base.
-- **Internal layer** (.gitignored): Host maps, workstreams, memory. Distributed via dotsync2.
-
-CLAUDE.md uses `@`-import syntax to load internal files at session start.
-Missing files are silently skipped.
+Safe to re-run: OSS files are always updated, internal files are never
+overwritten (skip-if-exists).
 
 ## Hooks
-
-Hooks are shell scripts that run at specific lifecycle events, wired via `settings.json`.
-All hooks read JSON from stdin and output JSON to stdout. Exit code 0 = success,
-exit code 2 = blocking error.
 
 | Hook | Event | Purpose |
 |------|-------|---------|
@@ -72,8 +88,6 @@ exit code 2 = blocking error.
 | `instructions-loaded.sh` | InstructionsLoaded | Logs loaded files to `~/.claude/logs/` |
 
 ### Testing hooks
-
-Test any PreToolUse hook with mock JSON:
 
 ```bash
 # Should deny:
@@ -88,12 +102,16 @@ echo '{"tool_input":{"command":"sl diff"},"cwd":"/tmp"}' | bash claude/hooks/com
 
 ## Knowledge base
 
-`knowledge/pytorch/` contains a skill (on-demand, not auto-loaded) with distilled
-coding conventions, test patterns, and logging. The skill triggers automatically
-when working in the pytorch repo, or invoke with `/pytorch-style`.
+Each project under `knowledge/` has:
+- `SKILL.md` — distilled conventions, installed as an on-demand skill
+- `README.md` — overview and pointers to the upstream repo's own Claude skills
 
-Pointers to the pytorch repo's own Claude skills (PR review, PT2 debugging,
-issue triage) are in `knowledge/pytorch/README.md` — reference them on demand.
+| Project | Skill | Based on |
+|---------|-------|----------|
+| pytorch | `/pytorch-style` | pytorch/pytorch |
+| torchtlx | `/torchtlx-style` | pytorch/pytorch + facebookexperimental/triton |
+| fbtriton-ci | `/fbtriton-ci` | facebookexperimental/triton CI |
+| triton-tbe | `/triton-tbe` | pytorch/FBGEMM + facebookexperimental/triton |
 
 ## Memory schema
 

@@ -80,13 +80,20 @@ fi
 if [ "${1:-}" = "--internal" ] && [ -d "$SCRIPT_DIR/templates/internal" ]; then
   mkdir -p "$CLAUDE_DIR/internal"
 
-  # fb-internal.md: always overwrite (config, not state)
-  if [ -f "$SCRIPT_DIR/templates/internal/fb-internal.md" ]; then
-    cp "$SCRIPT_DIR/templates/internal/fb-internal.md" "$CLAUDE_DIR/internal/fb-internal.md"
-    echo "  installed internal/fb-internal.md"
-  fi
+  # Scaffold all internal files (skip if destination already exists)
+  # Live copy in ~/.claude/internal/ is canonical — edit there, dotsync2 syncs.
+  # Templates are just initial seeds.
+  for f in "$SCRIPT_DIR/templates/internal/"*.md; do
+    [ -f "$f" ] || continue
+    fname=$(basename "$f")
+    if [ ! -f "$CLAUDE_DIR/internal/$fname" ]; then
+      cp "$f" "$CLAUDE_DIR/internal/$fname"
+      echo "  scaffolded: internal/$fname"
+    else
+      echo "  skipped (exists): internal/$fname"
+    fi
+  done
 
-  # Scaffold memory templates (skip if destination files already exist)
   MEMORY_DEST="$CLAUDE_DIR/internal/memory"
   mkdir -p "$MEMORY_DEST"
   for template in "$SCRIPT_DIR/templates/internal/memory/"*.md; do
