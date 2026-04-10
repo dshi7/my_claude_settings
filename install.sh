@@ -24,6 +24,20 @@ for f in "$SCRIPT_DIR/claude/rules/"*; do
   echo "  copied rules/$(basename "$f")"
 done
 
+# Install standalone skills from claude/skills/
+for skill_file in "$SCRIPT_DIR/claude/skills/"*/SKILL.md; do
+  [ -f "$skill_file" ] || continue
+  skill_dir="$(dirname "$skill_file")"
+  skill_name="$(basename "$skill_dir")"
+  dest="$CLAUDE_DIR/skills/$skill_name"
+  mkdir -p "$dest"
+  if cp "$skill_file" "$dest/SKILL.md" 2>/dev/null; then
+    echo "  installed skill: $skill_name"
+  else
+    echo "  skipped skill (no write access): $skill_name"
+  fi
+done
+
 # Install skills from knowledge directories
 # Each directory containing a SKILL.md is installed to ~/.claude/skills/<dirname>/
 for skill_file in "$SCRIPT_DIR/claude/knowledge/"*/SKILL.md; do

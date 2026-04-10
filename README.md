@@ -19,15 +19,23 @@ claude/                              # OSS layer — git-tracked, refreshed each
 │   ├── cwd-changed.sh               # Set REPO_VCS env var (CwdChanged)
 │   ├── post-compact.sh              # Persist summary to workstreams.md (PostCompact)
 │   └── instructions-loaded.sh       # Debug logging (InstructionsLoaded)
+├── skills/
+│   ├── project/                     # /project — select project, load context
+│   ├── torchtlx-design/             # /torchtlx-design — design panel
+│   └── torchtlx-validate/           # /torchtlx-validate — validation panel
 └── knowledge/                       # Distilled OSS-safe project knowledge
     ├── pytorch/                     # PyTorch conventions (/pytorch-style)
     ├── torchtlx/                    # TLX conventions (/torchtlx-style)
+    │   ├── panels/design/           #   Design panel (6 expert agents)
+    │   └── panels/validation/       #   Validation panel (3 agents)
     ├── fbtriton-ci/                 # CI workflow conventions (/fbtriton-ci)
     └── triton-tbe/                  # TBE kernel conventions (/triton-tbe)
 
 templates/internal/                  # Seeds for internal layer (one-time scaffold)
 ├── fb-internal.md                   # Domain, devserver hosts, repo paths
 ├── torchtlx.md                      # FB-internal TLX context
+├── torchtlx-testing.md              # FB-internal TLX test commands
+├── torchtlx-bench.md                # FB-internal EMS benchmark commands + baselines
 ├── fbtriton-ci.md                   # FB-internal CI tools context
 ├── triton-tbe.md                    # FB-internal TBE benchmarks context
 └── memory/
@@ -85,7 +93,7 @@ overwritten (skip-if-exists).
 | **Overwrite** | `skills/` (from `knowledge/`) | OSS skills: pytorch, torchtlx, fbtriton-ci, triton-tbe, debug-tlparse |
 | **Copy** | `hooks/*.sh` | 7 lifecycle hook scripts |
 | **Copy** | `knowledge/*/README.md` | Knowledge base READMEs |
-| **Scaffold** | `internal/*.md` | FB-internal context (skip-if-exists) |
+| **Scaffold** | `internal/*.md` | FB-internal context incl. torchtlx-testing, torchtlx-bench (skip-if-exists) |
 | **Scaffold** | `internal/memory/*.md` | Memory templates (skip-if-exists) |
 | **Scaffold** | `skills/triton-ci-status/` | Internal skill (skip-if-exists) |
 
@@ -117,6 +125,34 @@ echo '{"tool_input":{"command":"git reset --hard HEAD~3"},"cwd":"/tmp"}' | bash 
 echo '{"tool_input":{"command":"sl diff"},"cwd":"/tmp"}' | bash claude/hooks/commit-guard.sh
 ```
 
+## Session flow
+
+All project context is lazy-loaded on demand — nothing is eagerly loaded at
+session start except host context (`fb-internal.md`) and memory files.
+
+```
+Session start (fbsource/fbcode)
+        │
+        ▼
+   /project               ← select project, loads general context
+        │
+        ├─ <project>
+        │   ├─ reads ~/.claude/internal/<project>.md
+        │   └─ shows available workflows (if any):
+        │       ├─ /<project>-design    ← expert agents → design proposal
+        │       └─ /<project>-validate  ← test + bench + review
+        │
+        └─ none
+            └─ no project context loaded
+```
+
+Each workflow skill loads its own panel files + internal commands on demand:
+
+| Skill | Loads (git) | Loads (internal) |
+|-------|-------------|------------------|
+| `/<project>-design` | agent role files + constraints | — |
+| `/<project>-validate` | agent role files | internal test/bench commands |
+
 ## Knowledge base
 
 Each project under `knowledge/` has:
@@ -130,6 +166,31 @@ Each project under `knowledge/` has:
 | fbtriton-ci | `/fbtriton-ci` | facebookexperimental/triton CI |
 | triton-tbe | `/triton-tbe` | pytorch/FBGEMM + facebookexperimental/triton |
 | debug-tlparse | `/debug-tlparse` | OSS tlparse (fbcode//caffe2/fb/tlparse) |
+
+### TorchTLX Agent Panels
+
+TorchTLX has two agent panels for collaborative design and automated validation:
+
+**Design panel** (`knowledge/torchtlx/panels/design/`) — 6 expert agents collaborate
+sequentially to produce a design proposal for TLX features.
+
+| Agent | File | Role |
+|-------|------|------|
+| TLX Upstream | `agent-tlx-upstream.md` | Reference kernel expert, divergence tracking |
+| Kernel Architect | `agent-kernel.md` | GPU hardware, template structure, barriers |
+| Inductor Integration | `agent-inductor.md` | Compilation pipeline, InductorChoices hooks |
+| Heuristics & Autotuning | `agent-heuristics.md` | Config selection, shape rules, validation |
+| Fusion & Epilogue | `agent-fusion.md` | Epilogue fusion, kernel naming, force-fusion |
+| Higher-Order Ops | `agent-hop.md` | HOPs, subgraph templates, decompose_k |
+
+**Validation panel** (`knowledge/torchtlx/panels/validation/`) — 3 agents test,
+benchmark, and review a TLX implementation.
+
+| Agent | File | Role | Internal context |
+|-------|------|------|-----------------|
+| Test Runner | `agent-test.md` | Run unit tests, interpret results | `torchtlx-testing.md` |
+| Benchmark Runner | `agent-bench.md` | Run EMS benchmarks, compare MFU | `torchtlx-bench.md` |
+| Code Reviewer | `agent-review.md` | Style, xplat sync, constraint compliance | `torchtlx.md` |
 
 ## Memory schema
 

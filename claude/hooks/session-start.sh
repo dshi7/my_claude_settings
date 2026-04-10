@@ -3,6 +3,7 @@
 
 set -euo pipefail
 
+INPUT=$(cat)
 HOST=$(hostname -s 2>/dev/null || hostname)
 
 # Detect GPU type if nvidia-smi is available
@@ -15,6 +16,12 @@ if [ -n "$GPU" ]; then
   CONTEXT="Devserver: ${HOST} (GPU: ${GPU})"
 else
   CONTEXT="Devserver: ${HOST} (no GPU)"
+fi
+
+# Remind about /project in fbsource/fbcode
+CWD=$(echo "$INPUT" | jq -r '.cwd // ""')
+if [[ "$CWD" == */fbsource* ]] || [[ "$CWD" == */fbcode* ]]; then
+  CONTEXT="${CONTEXT}. Tip: run /project to load project context."
 fi
 
 jq -n --arg ctx "$CONTEXT" '{
