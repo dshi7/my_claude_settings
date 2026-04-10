@@ -75,20 +75,21 @@ if [ -f "$SCRIPT_DIR/claude/settings.json" ]; then
   fi
 fi
 
-# Optionally copy internal files
-if [ "${1:-}" = "--internal" ] && [ -d "$SCRIPT_DIR/claude/internal" ]; then
-  # Copy internal rules/configs
+# Optionally install internal (FB-only) files from templates/
+# Templates are git-tracked; installed to ~/.claude/internal/ (synced by dotsync2).
+if [ "${1:-}" = "--internal" ] && [ -d "$SCRIPT_DIR/templates/internal" ]; then
   mkdir -p "$CLAUDE_DIR/internal"
-  for f in "$SCRIPT_DIR/claude/internal/"*.md "$SCRIPT_DIR/claude/internal/"*.json; do
-    [ -f "$f" ] || continue
-    cp "$f" "$CLAUDE_DIR/internal/$(basename "$f")"
-    echo "  copied internal/$(basename "$f")"
-  done
+
+  # fb-internal.md: always overwrite (config, not state)
+  if [ -f "$SCRIPT_DIR/templates/internal/fb-internal.md" ]; then
+    cp "$SCRIPT_DIR/templates/internal/fb-internal.md" "$CLAUDE_DIR/internal/fb-internal.md"
+    echo "  installed internal/fb-internal.md"
+  fi
 
   # Scaffold memory templates (skip if destination files already exist)
   MEMORY_DEST="$CLAUDE_DIR/internal/memory"
   mkdir -p "$MEMORY_DEST"
-  for template in "$SCRIPT_DIR/claude/internal/memory/"*.md; do
+  for template in "$SCRIPT_DIR/templates/internal/memory/"*.md; do
     [ -f "$template" ] || continue
     fname=$(basename "$template")
     if [ ! -f "$MEMORY_DEST/$fname" ]; then

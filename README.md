@@ -5,36 +5,36 @@ My Claude Code settings — general preferences and rules for AI-assisted develo
 ## Structure
 
 ```
-claude/
-├── CLAUDE.md                    # Global prefs + @-imports
-├── settings.json                # Hooks wiring (PreToolUse, SessionStart, etc.)
+claude/                              # OSS layer — git-tracked
+├── CLAUDE.md                        # Global prefs + @-imports to internal/
+├── settings.json                    # Hooks wiring (PreToolUse, SessionStart, etc.)
 ├── rules/
-│   ├── shell-safety.md          # Shell command guardrails
-│   └── kernel-style.md          # GPU kernel conventions (path-scoped)
+│   ├── shell-safety.md              # Shell command guardrails
+│   └── kernel-style.md              # GPU kernel conventions (path-scoped)
 ├── hooks/
-│   ├── vcs-guard.sh             # Block wrong VCS commands (PreToolUse)
-│   ├── commit-guard.sh          # Block commit/amend/submit (PreToolUse)
-│   ├── danger-guard.sh          # Block destructive commands (PreToolUse)
-│   ├── session-start.sh         # Inject hostname + GPU type (SessionStart)
-│   ├── cwd-changed.sh           # Set REPO_VCS env var (CwdChanged)
-│   ├── post-compact.sh          # Persist summary to workstreams.md (PostCompact)
-│   └── instructions-loaded.sh   # Debug logging (InstructionsLoaded)
-├── knowledge/
-│   └── pytorch/
-│       ├── README.md            # Pointers to pytorch repo skills
-│       └── SKILL.md             # Distilled conventions (on-demand skill)
-└── internal/                    # .gitignored — distributed via dotsync2
-    ├── meta-internal.md         # Domain, devserver hosts
-    ├── settings.json            # Plugin config
-    ├── settings.local.json      # Local permissions
-    ├── commands/                 # Slash commands
-    ├── myclaw-prompts/          # Agentic job prompts
+│   ├── vcs-guard.sh                 # Block wrong VCS commands (PreToolUse)
+│   ├── commit-guard.sh              # Block commit/amend/submit (PreToolUse)
+│   ├── danger-guard.sh              # Block destructive commands (PreToolUse)
+│   ├── session-start.sh             # Inject hostname + GPU type (SessionStart)
+│   ├── cwd-changed.sh               # Set REPO_VCS env var (CwdChanged)
+│   ├── post-compact.sh              # Persist summary to workstreams.md (PostCompact)
+│   └── instructions-loaded.sh       # Debug logging (InstructionsLoaded)
+└── knowledge/
+    └── pytorch/
+        ├── README.md                # Pointers to pytorch repo skills
+        └── SKILL.md                 # Distilled conventions (on-demand skill)
+
+templates/                           # Git-tracked templates for internal layer
+└── internal/
+    ├── fb-internal.md               # Domain, devserver hosts, repo paths
     └── memory/
-        ├── repos.md             # Repo map (stable)
-        ├── workstreams.md       # Active workstreams (volatile)
-        ├── decisions.md         # ADR log, append-only (on demand)
-        └── torchtlx/            # Multi-agent design system (7 agents)
+        ├── repos.md                 # Repo map scaffold
+        ├── workstreams.md           # Workstreams scaffold
+        └── decisions.md             # ADR log scaffold
 ```
+
+After `install.sh --internal`, the internal layer is installed to `~/.claude/internal/`
+and synced across devservers via dotsync2.
 
 ## Install
 

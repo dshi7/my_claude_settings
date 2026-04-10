@@ -16,6 +16,6 @@
        Distributed via dotsync2, .gitignored. @-imports below load these if present;
        missing files are silently skipped by Claude Code. -->
 
-@~/.claude/internal/meta-internal.md
+@~/.claude/internal/fb-internal.md
 @~/.claude/internal/memory/repos.md
 @~/.claude/internal/memory/workstreams.md
