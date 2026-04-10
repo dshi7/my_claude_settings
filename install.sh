@@ -81,16 +81,29 @@ if [ "${1:-}" = "--internal" ] && [ -d "$SCRIPT_DIR/templates/internal" ]; then
   mkdir -p "$CLAUDE_DIR/internal"
 
   # Scaffold all internal files (skip if destination already exists)
-  # Live copy in ~/.claude/internal/ is canonical — edit there, dotsync2 syncs.
-  # Templates are just initial seeds.
+  # Live copy is canonical — edit in place, dotsync2 syncs.
+  # Files with skill frontmatter (name: field) go to ~/.claude/skills/ instead.
   for f in "$SCRIPT_DIR/templates/internal/"*.md; do
     [ -f "$f" ] || continue
     fname=$(basename "$f")
-    if [ ! -f "$CLAUDE_DIR/internal/$fname" ]; then
-      cp "$f" "$CLAUDE_DIR/internal/$fname"
-      echo "  scaffolded: internal/$fname"
+    # Detect skill files by checking for "name:" in YAML frontmatter
+    if head -5 "$f" | grep -q '^name:'; then
+      skill_name="${fname%.md}"
+      dest="$CLAUDE_DIR/skills/$skill_name"
+      mkdir -p "$dest"
+      if [ ! -f "$dest/SKILL.md" ]; then
+        cp "$f" "$dest/SKILL.md"
+        echo "  scaffolded skill: $skill_name"
+      else
+        echo "  skipped (exists): skills/$skill_name"
+      fi
     else
-      echo "  skipped (exists): internal/$fname"
+      if [ ! -f "$CLAUDE_DIR/internal/$fname" ]; then
+        cp "$f" "$CLAUDE_DIR/internal/$fname"
+        echo "  scaffolded: internal/$fname"
+      else
+        echo "  skipped (exists): internal/$fname"
+      fi
     fi
   done
 

@@ -75,6 +75,23 @@ other live keys. Without jq, it falls back to a plain copy.
 Safe to re-run: OSS files are always updated, internal files are never
 overwritten (skip-if-exists).
 
+### What `install.sh --internal` does
+
+| Action | Files | Effect |
+|--------|-------|--------|
+| **Overwrite** | `CLAUDE.md` | Lean version with prefs + @-imports |
+| **Overwrite** | `rules/*.md` | Shell safety, kernel style |
+| **Merge** | `settings.json` | Adds hooks, preserves `enabledPlugins` and `env` |
+| **Overwrite** | `skills/` (from `knowledge/`) | OSS skills: pytorch, torchtlx, fbtriton-ci, triton-tbe, debug-tlparse |
+| **Copy** | `hooks/*.sh` | 7 lifecycle hook scripts |
+| **Copy** | `knowledge/*/README.md` | Knowledge base READMEs |
+| **Scaffold** | `internal/*.md` | FB-internal context (skip-if-exists) |
+| **Scaffold** | `internal/memory/*.md` | Memory templates (skip-if-exists) |
+| **Scaffold** | `skills/triton-ci-status/` | Internal skill (skip-if-exists) |
+
+**Not touched**: `settings.local.json`, `projects/` (auto-memory), `history.jsonl`,
+`commands/`, runtime state (`backups/`, `debug/`, `meta/`, `sessions/`).
+
 ## Hooks
 
 | Hook | Event | Purpose |
@@ -112,6 +129,7 @@ Each project under `knowledge/` has:
 | torchtlx | `/torchtlx-style` | pytorch/pytorch + facebookexperimental/triton |
 | fbtriton-ci | `/fbtriton-ci` | facebookexperimental/triton CI |
 | triton-tbe | `/triton-tbe` | pytorch/FBGEMM + facebookexperimental/triton |
+| debug-tlparse | `/debug-tlparse` | OSS tlparse (fbcode//caffe2/fb/tlparse) |
 
 ## Memory schema
 
