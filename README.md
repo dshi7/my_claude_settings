@@ -83,19 +83,22 @@ other live keys. Without jq, it falls back to a plain copy.
 Safe to re-run: OSS files are always updated, internal files are never
 overwritten (skip-if-exists).
 
-### What `install.sh --internal` does
+### `install.sh` vs `install.sh --internal`
 
-| Action | Files | Effect |
-|--------|-------|--------|
-| **Overwrite** | `CLAUDE.md` | Lean version with prefs + @-imports |
-| **Overwrite** | `rules/*.md` | Shell safety, kernel style |
-| **Merge** | `settings.json` | Adds hooks, preserves `enabledPlugins` and `env` |
-| **Overwrite** | `skills/` (from `knowledge/`) | OSS skills: pytorch, torchtlx, fbtriton-ci, triton-tbe, debug-tlparse |
-| **Copy** | `hooks/*.sh` | 7 lifecycle hook scripts |
-| **Copy** | `knowledge/*/README.md` | Knowledge base READMEs |
-| **Scaffold** | `internal/*.md` | FB-internal context incl. torchtlx-testing, torchtlx-bench (skip-if-exists) |
-| **Scaffold** | `internal/memory/*.md` | Memory templates (skip-if-exists) |
-| **Scaffold** | `skills/triton-ci-status/` | Internal skill (skip-if-exists) |
+|  | `./install.sh` | `./install.sh --internal` |
+|---|---|---|
+| CLAUDE.md | overwrite | overwrite |
+| rules/*.md | overwrite | overwrite |
+| settings.json | merge | merge |
+| hooks/*.sh | overwrite | overwrite |
+| skills/ | overwrite | overwrite |
+| knowledge/ (incl. panels) | overwrite | overwrite |
+| **internal/*.md** | **skip** | **scaffold (skip-if-exists)** |
+| **internal/memory/*.md** | **skip** | **scaffold (skip-if-exists)** |
+| **internal skills** (triton-ci-status) | **skip** | **scaffold (skip-if-exists)** |
+
+Use `--internal` on first setup or when new internal templates are added.
+After that, plain `./install.sh` is enough for updates.
 
 **Not touched**: `settings.local.json`, `projects/` (auto-memory), `history.jsonl`,
 `commands/`, runtime state (`backups/`, `debug/`, `meta/`, `sessions/`).

@@ -53,19 +53,18 @@ for skill_file in "$SCRIPT_DIR/claude/knowledge/"*/SKILL.md; do
   fi
 done
 
-# Copy non-skill knowledge files (README.md, etc.)
+# Copy non-skill knowledge files (README.md, panels/, etc.) — recursive
 for dir in "$SCRIPT_DIR/claude/knowledge/"*/; do
   [ -d "$dir" ] || continue
   name="$(basename "$dir")"
   dest="$CLAUDE_DIR/knowledge/$name"
   mkdir -p "$dest"
-  for f in "$dir"*; do
-    [ -f "$f" ] || continue
-    fname="$(basename "$f")"
-    [ "$fname" = "SKILL.md" ] && continue  # already installed as skill
-    cp "$f" "$dest/$fname"
-    echo "  copied knowledge/$name/$fname"
-  done
+  # Use find to recurse into subdirectories (e.g., panels/design/)
+  (cd "$dir" && find . -type f ! -name 'SKILL.md' | while read -r relpath; do
+    mkdir -p "$dest/$(dirname "$relpath")"
+    cp "$dir/$relpath" "$dest/$relpath"
+    echo "  copied knowledge/$name/$relpath"
+  done)
 done
 
 # Copy hooks
