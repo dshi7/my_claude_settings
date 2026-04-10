@@ -62,10 +62,17 @@ if [ -d "$SCRIPT_DIR/claude/hooks" ]; then
   done
 fi
 
-# Copy settings.json (merge hooks into existing if present)
+# Merge settings.json (deep-merge repo hooks into existing, preserving plugins/env)
 if [ -f "$SCRIPT_DIR/claude/settings.json" ]; then
-  cp "$SCRIPT_DIR/claude/settings.json" "$CLAUDE_DIR/settings.json"
-  echo "  copied settings.json"
+  if [ -f "$CLAUDE_DIR/settings.json" ] && command -v jq &>/dev/null; then
+    jq -s '.[0] * .[1]' "$CLAUDE_DIR/settings.json" "$SCRIPT_DIR/claude/settings.json" \
+      > "$CLAUDE_DIR/settings.json.tmp"
+    mv "$CLAUDE_DIR/settings.json.tmp" "$CLAUDE_DIR/settings.json"
+    echo "  merged settings.json (preserved existing keys)"
+  else
+    cp "$SCRIPT_DIR/claude/settings.json" "$CLAUDE_DIR/settings.json"
+    echo "  copied settings.json (fresh install)"
+  fi
 fi
 
 # Optionally copy internal files
