@@ -110,9 +110,9 @@ After that, plain `./install.sh` is enough for updates.
 | `vcs-guard.sh` | PreToolUse (Bash) | Blocks `hg` in git repos and `git` in hg repos |
 | `commit-guard.sh` | PreToolUse (Bash) | Blocks commit, amend, force-push, and jf submit |
 | `danger-guard.sh` | PreToolUse (Bash) | Blocks `rm -rf /`, `git reset --hard`, rebase without `-d` |
-| `session-start.sh` | SessionStart | Injects devserver hostname and GPU type into context |
+| `session-start.sh` | SessionStart | Injects hostname + GPU; re-injects project context after compaction |
 | `cwd-changed.sh` | CwdChanged | Sets `REPO_VCS=hg|git|none` env var |
-| `post-compact.sh` | PostCompact | Appends compact summary to `workstreams.md` |
+| `post-compact.sh` | PostCompact | Appends summary to `workstreams.md`; persists active project |
 | `instructions-loaded.sh` | InstructionsLoaded | Logs loaded files to `~/.claude/logs/` |
 
 ### Testing hooks

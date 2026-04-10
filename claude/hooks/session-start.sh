@@ -18,10 +18,23 @@ else
   CONTEXT="Devserver: ${HOST} (no GPU)"
 fi
 
-# Remind about /project in fbsource/fbcode
-CWD=$(echo "$INPUT" | jq -r '.cwd // ""')
-if [[ "$CWD" == */fbsource* ]] || [[ "$CWD" == */fbcode* ]]; then
-  CONTEXT="${CONTEXT}. Tip: run /project to load project context."
+# Check if this is a post-compaction restart — re-inject project context
+SOURCE=$(echo "$INPUT" | jq -r '.source // ""')
+STATE_FILE="$HOME/.claude/.active-project"
+
+if [[ "$SOURCE" == "compact" ]] && [[ -f "$STATE_FILE" ]]; then
+  PROJ=$(cat "$STATE_FILE")
+  PROJ_FILE="$HOME/.claude/internal/${PROJ}.md"
+  if [[ -f "$PROJ_FILE" ]]; then
+    PROJ_CONTEXT=$(cat "$PROJ_FILE")
+    CONTEXT="${CONTEXT}. Active project: ${PROJ}. Re-injecting context after compaction. ${PROJ_CONTEXT}"
+  fi
+else
+  # Remind about /project in fbsource/fbcode
+  CWD=$(echo "$INPUT" | jq -r '.cwd // ""')
+  if [[ "$CWD" == */fbsource* ]] || [[ "$CWD" == */fbcode* ]]; then
+    CONTEXT="${CONTEXT}. Tip: run /project to load project context."
+  fi
 fi
 
 jq -n --arg ctx "$CONTEXT" '{

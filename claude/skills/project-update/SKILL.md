@@ -17,7 +17,10 @@ If the user didn't provide input in their message, ask:
 
 ## Step 2 — Read content
 
-- **Google Doc / WP link**: Use WebFetch. If it returns empty or auth-blocked,
+- **Internal link** (Google Doc, Workplace, wiki, fburl): Use
+  `mcp__plugin_meta_mux__knowledge_load` with the URL — it has auth context.
+  If that fails, ask the user to paste the content instead.
+- **External link**: Use WebFetch. If it returns empty or auth-blocked,
   ask the user to paste the content instead.
 - **Pasted text**: Use directly — no fetch needed.
 

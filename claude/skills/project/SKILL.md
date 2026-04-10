@@ -10,11 +10,17 @@ Ask the user which project they are working on:
 3. **triton-tbe** — TBE kernels, FBGEMM integration
 4. **none** — general work, no project context
 
-After the user answers, read the matching file with the Read tool:
-- torchtlx → `~/.claude/internal/torchtlx.md`
-- fbtriton-ci → `~/.claude/internal/fbtriton-ci.md`
-- triton-tbe → `~/.claude/internal/triton-tbe.md`
-- none → skip, confirm "No project context loaded."
+After the user answers:
+
+1. Read the matching file with the Read tool:
+   - torchtlx → `~/.claude/internal/torchtlx.md`
+   - fbtriton-ci → `~/.claude/internal/fbtriton-ci.md`
+   - triton-tbe → `~/.claude/internal/triton-tbe.md`
+   - none → skip, confirm "No project context loaded."
+
+2. Write the project name to `~/.claude/.active-project` using Bash:
+   `echo "<project>" > ~/.claude/.active-project`
+   (This ensures project context is re-injected after compaction.)
 
 Confirm the loaded project and show available workflows. Example for torchtlx:
 
