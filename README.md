@@ -2,6 +2,29 @@
 
 My Claude Code settings — general preferences and rules for AI-assisted development.
 
+## Design principles
+
+1. **Minimize eager loading** — context window is scarce. Only load host context
+   and core preferences at session start. Everything else on demand via skills.
+2. **Separate "what to think" from "how to run"** — git-tracked files describe
+   roles, patterns, checklists (portable). Internal files have commands, targets,
+   baselines (environment-specific).
+3. **Hooks enforce, instructions suggest** — Claude may ignore CLAUDE.md
+   instructions. Hooks are deterministic — use them for hard rules (no commit,
+   no destructive ops). Use CLAUDE.md for soft preferences.
+4. **Skills over instructions for workflows** — multi-step workflows are more
+   reliable as skills than as prose in CLAUDE.md. Skills are explicit, invokable,
+   and self-contained.
+5. **Survive compaction** — critical context must be in system-level sources
+   (@-imports, rules/) or re-injected via PostCompact/SessionStart hooks.
+   Anything loaded via Read tool will be summarized lossy.
+6. **Self-diagnosable** — build observability in (`/fixmyclaude`, `/devenv`).
+   A single command should find what's wrong on a new devserver.
+7. **Idempotent install** — `install.sh` is safe to re-run anytime. Overwrite
+   what's refreshable, skip-if-exists for what's canonical on disk.
+8. **One canonical copy** — don't duplicate content. Internal files live in
+   `~/.claude/internal/` (canonical), git templates are empty seeds.
+
 ## Structure
 
 ```
